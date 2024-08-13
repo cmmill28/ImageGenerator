@@ -1,0 +1,127 @@
+{
+    "save_dir": "Output_Images/",
+    "save_name": "border_occlusion",
+    "params": {
+        "background": {
+            "color": [
+                245,
+                245,
+                220,
+                255
+            ],
+            "width": 1080,
+            "height": 1080
+        },
+        "scale": {
+            "dist": "T",
+            "params": [
+                0.15,
+                0.2,
+                0.25
+            ]
+        },
+        "rotation": {
+            "dist": "U",
+            "params": [
+                0,
+                360
+            ]
+        },
+        "color": {
+            "dist": "U",
+            "args": [
+                [
+                    10,
+                    255
+                ],
+                [
+                    10,
+                    255
+                ],
+                [
+                    10,
+                    255
+                ],
+                [
+                    140,
+                    170
+                ]
+            ]
+        },
+        "centers": {
+            "r": 150,
+            "k": 32
+        },
+        "size": 1.0,
+        "opacity": 0.7
+    },
+    "find_images": [
+        {
+            "name": "bat01.jpg"
+        }
+    ],
+    "excluded_images": [
+        {
+            "name": "bat01.jpg"
+        },
+        {
+            "name": "bat02.jpg"
+        },
+        {
+            "name": "bat03.jpg"
+        },
+        {
+            "name": "bat04.jpg"
+        },
+        {
+            "name": "bat05.jpg"
+        },
+        {
+            "name": "bat06.jpg"
+        },
+        {
+            "name": "bat07.jpg"
+        },
+        {
+            "name": "bat08.jpg"
+        },
+        {
+            "name": "bat09.jpg"
+        },
+        {
+            "name": "bat10.jpg"
+        },
+        {
+            "name": "bat11.jpg"
+        },
+        {
+            "name": "bat12.jpg"
+        },
+        {
+            "name": "bat13.jpg"
+        },
+        {
+            "name": "bat14.jpg"
+        },
+        {
+            "name": "bat15.jpg"
+        },
+        {
+            "name": "bat16.jpg"
+        },
+        {
+            "name": "bat17.jpg"
+        },
+        {
+            "name": "bat18.jpg"
+        },
+        {
+            "name": "bat19.jpg"
+        },
+        {
+            "name": "bat20.jpg"
+        }
+    ],
+    "border_occlusion": true,
+    "overlapping": false
+}
