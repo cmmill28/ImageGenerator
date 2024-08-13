@@ -15,7 +15,7 @@ def poissonDisc(width, height, r, k):
             neighbour_coords = coords[0] + dx, coords[1] + dy
             if not (0 <= neighbour_coords[0] < nx and
                     0 <= neighbour_coords[1] < ny):
-                # We're off the grid: no neighbours here.
+                # We're off the grid: no neighbors here.
                 continue
             neighbour_cell = cells[neighbour_coords]
             if neighbour_cell is not None:
