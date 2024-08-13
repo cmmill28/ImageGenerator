@@ -5,6 +5,8 @@ from os.path import isfile, join
 from PIL import Image, ImageOps, ImageEnhance
 from image_funs import advPaste
 from poisson_disc_fun import poissonDisc
+import numpy as np
+from sklearn.cluster import KMeans
 
 def allFiles(path):  # Gets a list of all the files in a folder
     try:
@@ -98,6 +100,10 @@ def imageGen(args, save_index):
     save_name = json_data['save_name']
     size = params.get("size", 1.0)
     opacity = params.get("opacity", 1.0)
+    
+    # Extract width and height from the background parameters
+    width = params["background"]["width"]
+    height = params["background"]["height"]
 
     fileList = allFiles(mpeg7_dir)
 
@@ -110,15 +116,13 @@ def imageGen(args, save_index):
         except ValueError:
             pass
 
-    # Modified to include edge points and overlapping points
-    centerPoints, edgePoints, overlappingPoints = poissonDisc(
-        params["background"]["width"], 
-        params["background"]["height"], 
+    centerPoints, edgePoints, cluster_centers = poissonDisc(
+        width, 
+        height, 
         params["centers"]["r"], 
         params["centers"]["k"]
     )
 
-    # Initialize dictionary to store image data
     imageDic = {}
     num = 0
 
@@ -129,32 +133,25 @@ def imageGen(args, save_index):
             "overlapping": json_data.get('overlapping', False)
         }
 
-        # Determine which points meet the criteria for placing the target image
-        suitable_points = []
-
         if target_criteria["border_occlusion"]:
-            suitable_points.extend(edgePoints)
-        if target_criteria["overlapping"]:
-            suitable_points.extend(overlappingPoints)
+            suitable_points = edgePoints
+        else:
+            suitable_points = centerPoints
 
-        # Ensure that only unique points are in the list
-        suitable_points = list(set(suitable_points))
+        # Select the cluster center closest to the edge, if border_occlusion is True
+        closest_cluster = None
+        if target_criteria["border_occlusion"]:
+            min_distance = float('inf')
+            for center in cluster_centers:
+                distance_to_edge = min(center[0], width - center[0], center[1], height - center[1])
+                if distance_to_edge < min_distance:
+                    min_distance = distance_to_edge
+                    closest_cluster = center
+        else:
+            closest_cluster = random.choice(cluster_centers)
 
-        # If both criteria are selected, find points that meet both criteria
-        if target_criteria["border_occlusion"] and target_criteria["overlapping"]:
-            suitable_points = [pt for pt in suitable_points if pt in edgePoints and pt in overlappingPoints]
-
-        # If no points meet the criteria, fall back to using just one of the criteria or a random point
-        if not suitable_points:
-            if target_criteria["border_occlusion"]:
-                suitable_points = edgePoints
-            elif target_criteria["overlapping"]:
-                suitable_points = overlappingPoints
-            else:
-                suitable_points = centerPoints
-
-        # Select a point for the target image
-        target_point = random.choice(suitable_points)
+        # Find the point within the selected cluster that is closest to the edge
+        target_point = min(suitable_points, key=lambda p: np.linalg.norm(np.array(p) - closest_cluster))
 
         imageDic[num] = {
             "imageDir": target_image["name"],
@@ -166,7 +163,6 @@ def imageGen(args, save_index):
         }
         num += 1
 
-    # Fill in the remaining points
     remaining_points = [pt for pt in centerPoints if pt != target_point] if find_images else centerPoints
 
     for newCenter in remaining_points:
@@ -183,7 +179,7 @@ def imageGen(args, save_index):
         imageDic.update(new_entry)
         num += 1
 
-    composite = Image.new('RGBA', (params["background"]["width"], params["background"]["height"]),
+    composite = Image.new('RGBA', (width, height),
                           color=(params["background"]["color"][0],
                                  params["background"]["color"][1],
                                  params["background"]["color"][2],

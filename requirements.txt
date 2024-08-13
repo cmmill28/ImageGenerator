@@ -1,2 +1,3 @@
 Pillow
 Numpy
+scikit-learn
